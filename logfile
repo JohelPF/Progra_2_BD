@@ -1,0 +1,29 @@
+2021-05-21 11:41:33.101 CST [1028] LOG:  starting PostgreSQL 13.2, compiled by Visual C++ build 1914, 64-bit
+2021-05-21 11:41:33.104 CST [1028] LOG:  could not bind IPv6 address "::1": Permission denied
+2021-05-21 11:41:33.104 CST [1028] HINT:  Is another postmaster already running on port 5432? If not, wait a few seconds and retry.
+2021-05-21 11:41:33.105 CST [1028] LOG:  could not bind IPv4 address "127.0.0.1": Permission denied
+2021-05-21 11:41:33.105 CST [1028] HINT:  Is another postmaster already running on port 5432? If not, wait a few seconds and retry.
+2021-05-21 11:41:33.105 CST [1028] WARNING:  could not create listen socket for "localhost"
+2021-05-21 11:41:33.105 CST [1028] FATAL:  could not create any TCP/IP sockets
+2021-05-21 11:41:33.107 CST [1028] LOG:  database system is shut down
+2021-05-21 11:46:18.092 CST [17700] LOG:  starting PostgreSQL 13.2, compiled by Visual C++ build 1914, 64-bit
+2021-05-21 11:46:18.095 CST [17700] LOG:  could not bind IPv6 address "::1": Permission denied
+2021-05-21 11:46:18.095 CST [17700] HINT:  Is another postmaster already running on port 5432? If not, wait a few seconds and retry.
+2021-05-21 11:46:18.095 CST [17700] LOG:  could not bind IPv4 address "127.0.0.1": Permission denied
+2021-05-21 11:46:18.095 CST [17700] HINT:  Is another postmaster already running on port 5432? If not, wait a few seconds and retry.
+2021-05-21 11:46:18.096 CST [17700] WARNING:  could not create listen socket for "localhost"
+2021-05-21 11:46:18.096 CST [17700] FATAL:  could not create any TCP/IP sockets
+2021-05-21 11:46:18.097 CST [17700] LOG:  database system is shut down
+2021-05-21 12:17:17.052 CST [16052] LOG:  starting PostgreSQL 13.2, compiled by Visual C++ build 1914, 64-bit
+2021-05-21 12:17:17.056 CST [16052] LOG:  could not bind IPv6 address "::1": Permission denied
+2021-05-21 12:17:17.056 CST [16052] HINT:  Is another postmaster already running on port 5432? If not, wait a few seconds and retry.
+2021-05-21 12:17:17.056 CST [16052] LOG:  could not bind IPv4 address "127.0.0.1": Permission denied
+2021-05-21 12:17:17.056 CST [16052] HINT:  Is another postmaster already running on port 5432? If not, wait a few seconds and retry.
+2021-05-21 12:17:17.057 CST [16052] WARNING:  could not create listen socket for "localhost"
+2021-05-21 12:17:17.057 CST [16052] FATAL:  could not create any TCP/IP sockets
+2021-05-21 12:17:17.058 CST [16052] LOG:  database system is shut down
+2021-05-21 12:26:40.472 CST [15632] LOG:  starting PostgreSQL 13.2, compiled by Visual C++ build 1914, 64-bit
+2021-05-21 12:26:40.475 CST [15632] LOG:  listening on IPv6 address "::1", port 5433
+2021-05-21 12:26:40.475 CST [15632] LOG:  listening on IPv4 address "127.0.0.1", port 5433
+2021-05-21 12:26:41.146 CST [10156] LOG:  database system was shut down at 2021-05-21 11:32:02 CST
+2021-05-21 12:26:41.224 CST [15632] LOG:  database system is ready to accept connections
