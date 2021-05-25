@@ -55,9 +55,11 @@ ALTER TABLE modeloestrella.Prestamos
 
 create index I_modelo_pelicula on modeloestrella.pelicula(filme);
 create index I_modelo_lugar on modeloestrella.lugar(tienda);
+create index I_modelo_fecha_mes on modeloestrella.fecha(mes);
 create unique index I_modelo_fecha on modeloestrella.fecha(anno, mes, dia);
 create index I_modelo_lenguaje on modeloestrella.lenguaje(lenguaje);
 create index I_modelo_duracion on modeloestrella.duracion(dias);
+create index I_modelo_duracion2 on modeloestrella.duracion(fechaprestamo, fechadevolucion);
 create index I_modelo_prestamos on modeloestrella.prestamos(pelicula_id, lugar_id);
 
 --Inserts
@@ -196,16 +198,68 @@ END
 $BODY$
 LANGUAGE 'plpgsql';
 
+SELECT modeloestrella.Insert_Prestamos()
+
 --Procedimientos para consultas
 
 -- 1. Para un mes dado, sin importar el año, dar para cada categoría de película el número de alquileres realizados
+CREATE OR REPLACE PROCEDURE modeloestrella."Consulta1"(mes integer)
+LANGUAGE 'sql'
+AS $BODY$
+	select f.mes, p.categoria, pre.cantidadalquileres from modeloestrella.fecha f
+		inner join modeloestrella.prestamos pre on pre.fecha_id = f.fecha_id
+		inner  join modeloestrella.pelicula p on pre.pelicula_id = p.pelicula_id
+		where f.mes = 5
+	group by f.mes, p.categoria, pre.cantidadalquileres 
+	order by f.mes, p.categoria;
+$BODY$;
+
+CALL "modeloestrella"."Consulta1"(3)
 
 -- 2. Dar el número de alquileres y el monto cobrado, por duración del préstamo
-	
+CREATE OR REPLACE PROCEDURE modeloestrella."Consulta2"()
+LANGUAGE 'sql'
+AS $BODY$
+	select d.dias, p.cantidadAlquileres, p.montoCobrado  from modeloestrella.duracion d
+		inner join modeloestrella.prestamos p on p.duracion_id = d.duracion_id
+	group by d.dias, p.cantidadAlquileres, p.montoCobrado
+	order by d.dias;
+$BODY$;
+
+CALL "modeloestrella"."Consulta2"()
+
 -- 3. Hacer un rollup por año y mes para el monto cobrado por alquileres
+CREATE OR REPLACE PROCEDURE modeloestrella."Consulta3"()
+LANGUAGE 'sql'
+AS $BODY$
+	select f.anno, f.mes, p.montoCobrado from modeloestrella.fecha f
+		inner join modeloestrella.prestamos p on p.fecha_id = f.fecha_id
+	group by rollup(f.anno, f.mes),p.montoCobrado
+	order by f.anno, f.mes, p.montoCobrado;
+$BODY$;
+
+CALL "modeloestrella"."Consulta3"()
 
 -- 4. Hacer un cubo por año y categoría de película para el número de alquileres y el monto cobrado
-	
+CREATE OR REPLACE PROCEDURE modeloestrella."Consulta4"()
+LANGUAGE 'sql'
+AS $BODY$
+	select f.anno, p.categoria, pre.cantidadalquileres, pre.montoCobrado from modeloestrella.fecha f
+		inner join modeloestrella.prestamos pre on pre.fecha_id = f.fecha_id
+		inner  join modeloestrella.pelicula p on pre.pelicula_id = p.pelicula_id
+	group by cube(f.anno, p.categoria),pre.cantidadalquileres, pre.montoCobrado
+	order by f.anno, p.categoria;
+$BODY$;	
+
+CALL "modeloestrella"."Consulta4"()
+
+
+
+
+
+
+
+
 
 
 
