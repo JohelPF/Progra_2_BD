@@ -107,20 +107,24 @@ CREATE PROCEDURE modeloestrella."Insert_Duracion"()
 $$;
 
 CREATE OR REPLACE PROCEDURE modeloestrella."Insert_Prestamos"(
-	"pelicula_id" integer,
-	"lugar_id" integer,
-	"fecha_id" integer,
-	"lenguaje_id" integer,
-	"duracion_id" integer)
+	pelicula_id integer,
+	lugar_id integer,
+	fecha_id integer,
+	lenguaje_id integer,
+	duracion_id integer)
 LANGUAGE 'sql'
 AS $BODY$
 	INSERT INTO modeloestrella.prestamos(
 		pelicula_id, lugar_id, fecha_id, lenguaje_id, duracion_id, cantidadalquileres, montocobrado)
 		VALUES ("pelicula_id", "lugar_id", "fecha_id", "lenguaje_id", "duracion_id", 
-				(select count(r.inventory_id) from rental r, inventory i, film f, modeloestrella.pelicula p 
-					where 	r.inventory_id = i.inventory_id and 
-							i.film_id = f.film_id and f.title = p.filme and
-							p.pelicula_id = "pelicula_id"),
+				(select count(r.inventory_id) from rental r
+					inner join inventory i
+					on r.inventory_id = i.inventory_id
+					inner join film f
+					on i.film_id = f.film_id
+					inner join modeloestrella.pelicula p 
+					on f.title = p.filme
+					where p.pelicula_id = pelicula_id),
 				(select sum(p.amount) from payment p, rental r, inventory i, film f, modeloestrella.pelicula pe
 					where 	p.rental_id = r.rental_id and r.inventory_id = i.inventory_id and
 						i.film_id = f.film_id and f.title = pe.filme and 
@@ -128,7 +132,69 @@ AS $BODY$
 			   );
 $BODY$;
 
-drop procedure modeloestrella."Insert_Prestamos"
+CREATE OR REPLACE FUNCTION modeloestrella.Insert_Prestamos() RETURNS VOID AS
+$BODY$
+DECLARE
+    reg RECORD;
+    cur CURSOR FOR SELECT * FROM rental;
+BEGIN
+   OPEN cur;
+   LOOP
+    FETCH cur INTO reg;
+    EXIT WHEN NOT FOUND;
+	INSERT INTO modeloestrella.prestamos(
+		pelicula_id, lugar_id, fecha_id, lenguaje_id, duracion_id, cantidadalquileres, montocobrado)
+		VALUES (--Pelicula
+				(select p.pelicula_id from modeloestrella.pelicula p 
+					inner join film f on f.title = p.filme
+					inner join inventory i on f.film_id = i.film_id 
+					inner join rental r on r.inventory_id = i.inventory_id
+					where r.rental_id = reg.rental_id), 
+				--Lugar
+				(select l.lugar_id from modeloestrella.lugar l 
+					inner join inventory i on i.store_id = l.tienda
+					inner join rental r on r.inventory_id = i.inventory_id
+					where r.rental_id = reg.rental_id),
+				--Fecha
+				(select f.fecha_id from modeloestrella.fecha f 
+					where (SELECT EXTRACT(day FROM rental_date) from rental r 
+							where r.rental_id = reg.rental_id) = f.dia and
+							(SELECT EXTRACT(month FROM rental_date) from rental r 
+							where r.rental_id = reg.rental_id) = f.mes and
+							(SELECT EXTRACT(year FROM rental_date) from rental r 
+							where r.rental_id = reg.rental_id) = f.anno), 
+				--Lenguaje
+				(select l.lenguaje_id from modeloestrella.lenguaje l 
+					inner join language la on la.name = l.lenguaje
+					inner join film f on f.language_id = la.language_id
+					inner join inventory i on i.film_id = f.film_id
+					inner join rental r on r.inventory_id = i.inventory_id
+					where r.rental_id = reg.rental_id),
+				--Duracion
+				(select d.duracion_id from modeloestrella.duracion d
+					inner join rental r on r.rental_date = d.fechaprestamo and r.return_date = d.fechadevolucion 
+					where r.rental_id = reg.rental_id),
+				--Cantidad de alquileres con la misma pelicula
+				(select count(r.inventory_id) from rental r
+					 inner join inventory i on r.inventory_id = i.inventory_id
+					 inner join film f on f.film_id = i.film_id
+						where f.film_id = (select film_id from inventory i 
+											inner join rental r on r.inventory_id = i.inventory_id
+											where r.rental_id = reg.rental_id)), 
+				-- Monto cobrado por alquileres de la misma pelicula
+				(select sum(amount) from payment p
+					inner join rental r on p.rental_id = r.rental_id
+					inner join inventory i on r.inventory_id = i.inventory_id
+					inner join film f on f.film_id = i.film_id
+					where f.film_id = (select film_id from inventory i 
+										inner join rental r on r.inventory_id = i.inventory_id
+										where r.rental_id = reg.rental_id))
+		);
+   END LOOP;
+   RETURN;
+END
+$BODY$
+LANGUAGE 'plpgsql';
 
 --Procedimientos para consultas
 
